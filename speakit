@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
+#CE SCRIPT NECESSITE UNE CONNECTIVITE A INTERNET
+
+from os import remove
 from optparse import OptionParser
+import gtts  
+from playsound import playsound  
 
 class argsManager:
 
@@ -8,7 +13,7 @@ class argsManager:
     outfilename = None
     text     = None
 
-    def __setup_opts__(self):
+    def __setup_opts(self):
         
         self.parser.add_option("-f", "--file", dest="filename",
                         help="choisir le fichier a lire", metavar="FILE")
@@ -16,25 +21,25 @@ class argsManager:
         self.parser.add_option("-o", "--outfile", dest="outfilename",
                         help="enregistrer dans le fichier", metavar="FILE")
 
-        self.parser.add_option("-t", "--text", dest="filename",
+        self.parser.add_option("-t", "--text", dest="text",
                         help="specifier le texte a lire")
 
-    def __set_opts__(self):
-        (options, args) = parser.parse_args()
-        for option in options:
-            self._set(option,options[option])
+    def __set_opts(self):
+        (options, args) = self.parser.parse_args()
+        for option in options.__dict__:
+            self._set(option,options.__dict__[option])
 
     def gotopt(self,optname):
-        return optname in self
+        return hasattr(self,optname)
 
     def _set(self,optname,optval):
-        self[optname] = optval
+        setattr(self,optname,optval)
 
     def get(self,optname):
-        return self[optname] if self.gotopt(optname) else None
+        return getattr(self,optname) if self.gotopt(optname) else None
 
     def __init__(self):
-        self.__setup_opts__()
+        self.__setup_opts()
         self.__set_opts()
 
 
@@ -59,6 +64,9 @@ class ttsManager:
         self.set_lines(lines)
         self.set_text()
 
+    def is_valid(self):
+        return self.text
+
 class ftsManager:
     "file to speak manager"
 
@@ -73,13 +81,13 @@ class ftsManager:
         return self.text.get_lines() if self.text else []
 
     def read_file(self):
-        self.file = fopen(self.filename,'r')
+        self.file = open(self.filename,'r')
         if self.is_valid():
             self.text = ttsManager(self.file.readlines())
         self.file.close()
 
     def is_valid(self):
-        return self.file.readable()
+        return (self.text and self.text.is_valid()) or (not self.file.closed and self.file.readable())
 
     def set_filename(self,filename):
         self.filename = filename
@@ -90,13 +98,64 @@ class ftsManager:
 
 class SpeakIt:
 
+    datasource = None
+
+    def speak(self,data=None):
+        recv_data = None
+        if data :
+            recv_data = True
+
+        if recv_data:
+            speakdata = gtts.gTTS(data)
+            speakdata.save('temp.mp3')
+            playsound('temp.mp3')
+            remove('temp.mp3')
+            
+        else:
+            data = ["Les donnees specifiees sont incorrectes"]
+            if self.__has_correct_data():
+                data = self.data.get_lines()
+            
+            if type(data) is str:
+                speakdata = gtts.gTTS(data)
+                speakdata.save('temp.mp3')
+                playsound('temp.mp3')
+                if self.args.get('outfilename'):
+                    speakdata.save(self.args.get('outfilename'))
+                remove('temp.mp3')
+            else:
+                for line in data:
+                    gtts.gTTS(line).save('temp.mp3')
+                    playsound('temp.mp3')
+                    if self.args.get('outfilename'):
+                        of = open(self.args.get('outfilename'),'ba+')
+                        sf = open('temp.mp3','br')
+                        of.write(sf.read())
+                        of.close()
+                        sf.close()
+                    remove('temp.mp3')
+                    
+    def __init_data(self):
+        if self.args.get('filename'):
+            self.data = ftsManager(self.args.get('filename'))
+        elif self.args.get('text'):
+            self.data = ttsManager(self.args.get('text'))
+
+    def __has_correct_data(self):
+        return self.data and self.data.is_valid()
+
     def __run__(self):
-        "just run and exit"
+        "just run"
+        self.__init_data()
+        self.speak()
+
 
     def __interact__(self):
         "interact"
+        #prints the basic usage until implementation
+        self.args.parser.print_help()
 
-    def check_args():
+    def check_args(self):
         return self.args.get('filename') or self.args.get('text')
 
     def __init__(self):
@@ -106,3 +165,6 @@ class SpeakIt:
         else:
             self.__interact__()
 
+
+speaker = SpeakIt()
+speaker.speak('hello')
