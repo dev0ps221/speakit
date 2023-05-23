@@ -109,8 +109,10 @@ class ptsManager(ftsManager):
         self.file = open(self.filename,'rb')
         if self.is_valid():
             pdfReader = PyPDF2.PdfFileReader(self.file)
-            help(pdfReader)
-            self.text = ttsManager(self.file.readlines())
+            lines = []
+            for page in pdfReader.pages:
+                [lines.append(line) for line in page.extractText().split('\n')]
+            self.text = ttsManager(lines)
         self.file.close()
 
 
