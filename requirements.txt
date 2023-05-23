@@ -1,3 +1,4 @@
 gTTS 
 playsound
 pyttsx3
+PyPDF2
