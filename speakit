@@ -16,11 +16,19 @@ class argsManager:
     outfilename = None
     text     = None
     pdf     = None
+    live = None
+    lang = None
 
     def __setup_opts(self):
         
         self.parser.add_option("-f", "--file", dest="filename",
                         help="choisir le fichier a lire", metavar="FILE")
+
+        self.parser.add_option("-l", "--lang", dest="lang",metavar="TEXT",
+                        help="langue de lecture")
+
+        self.parser.add_option("-L", "--live", dest="live",action="store_true",
+                        help="lire le fichier en meme temps qu il est parcouru")
 
         self.parser.add_option("-P", "--pdf", dest="pdf",
                         help="choisir le fichier [pdf] a lire", metavar="FILE")
@@ -116,45 +124,51 @@ class ptsManager(ftsManager):
         self.file.close()
 
 
+
 class SpeakIt:
 
     datasource = None
 
-    def speak(self,data=None):
+    def speak(self,data=None,lang='fr'):
         recv_data = None
         if data :
             recv_data = True
+        try:
 
-        if recv_data:
-            speakdata = gtts.gTTS(data)
-            speakdata.save('temp.mp3')
-            playsound('temp.mp3')
-            remove('temp.mp3')
-            
-        else:
-            data = ["Les donnees specifiees sont incorrectes"]
-            if self.__has_correct_data():
-                data = self.data.get_lines()
-            
-            if type(data) is str:
-                speakdata = gtts.gTTS(data)
+            if recv_data:
+                speakdata = gtts.gTTS(data,lang=lang)
                 speakdata.save('temp.mp3')
                 playsound('temp.mp3')
-                if self.args.get('outfilename'):
-                    speakdata.save(self.args.get('outfilename'))
                 remove('temp.mp3')
+                
             else:
-                for line in data:
-                    gtts.gTTS(line).save('temp.mp3')
+                lang = self.args.get('lang') if self.args.get('outfilename') else lang
+                data = ["Les donnees specifiees sont incorrectes"]
+                if self.__has_correct_data():
+                    data = self.data.get_lines()
+                
+                if type(data) is str:
+                    speakdata = gtts.gTTS(data,lang=lang)
+                    speakdata.save('temp.mp3')
                     playsound('temp.mp3')
                     if self.args.get('outfilename'):
-                        of = open(self.args.get('outfilename'),'ba+')
-                        sf = open('temp.mp3','br')
-                        of.write(sf.read())
-                        of.close()
-                        sf.close()
+                        speakdata.save(self.args.get('outfilename'))
                     remove('temp.mp3')
-                    
+                else:
+                    for line in data:
+                        print(line)
+                        gtts.gTTS(line,lang=lang).save('temp.mp3')
+                        playsound('temp.mp3')
+                        if self.args.get('outfilename'):
+                            of = open(self.args.get('outfilename'),'ba+')
+                            sf = open('temp.mp3','br')
+                            of.write(sf.read())
+                            of.close()
+                            sf.close()
+                        remove('temp.mp3')
+        except Exception as e:
+            print(e)        
+
     def __init_data(self):
         if self.args.get('filename'):
             self.data = ftsManager(self.args.get('filename'))
@@ -181,12 +195,15 @@ class SpeakIt:
         return self.args.get('filename') or self.args.get('text') or self.args.get('pdf')
 
     def __init__(self):
-        self.args = argsManager()
-        if self.check_args():
-            self.__run__()
-        else:
-            self.__interact__()
+        try:
+            self.args = argsManager()
+            if self.check_args():
+                self.__run__()
+            else:
+                self.__interact__()
+        except KeyboardInterrupt as e:
+            self.speak('au revoir',lang='fr')
+            exit()
 
 
 speaker = SpeakIt()
-speaker.speak('hello')
