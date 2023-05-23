@@ -18,7 +18,7 @@ class ttsManager:
 
     def __init__(self,lines):
         self.set_lines(lines)
-        self.set_text(text)
+        self.set_text()
 
 class ftsManager:
     "file to speak manager"
@@ -36,7 +36,8 @@ class ftsManager:
     def read_file(self):
         self.file = fopen(self.filename,'r')
         if self.is_valid():
-            self.text = ttsManager(self.file.readlines)
+            self.text = ttsManager(self.file.readlines())
+        self.file.close()
 
     def is_valid(self):
         return self.file.readable()
@@ -50,4 +51,10 @@ class ftsManager:
 
 class SpeakIt:
 
+    def __run__(self):
+        
+
+    def __interact__(self):
+
     def __init__(self):
+
