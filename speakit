@@ -134,7 +134,6 @@ class SpeakIt:
         if data :
             recv_data = True
         try:
-
             if recv_data:
                 speakdata = gtts.gTTS(data,lang=lang)
                 speakdata.save('temp.mp3')
@@ -142,7 +141,7 @@ class SpeakIt:
                 remove('temp.mp3')
                 
             else:
-                lang = self.args.get('lang') if self.args.get('outfilename') else lang
+                lang = self.args.get('lang') if self.args.get('lang') else lang
                 data = ["Les donnees specifiees sont incorrectes"]
                 if self.__has_correct_data():
                     data = self.data.get_lines()
