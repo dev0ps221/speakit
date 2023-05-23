@@ -12,7 +12,10 @@
 
 
 #exemple
+
+```
 ./speakit -t "hello world" --lang=en
+```
 
 #utilisation
 
