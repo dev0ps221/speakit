@@ -1,3 +1,7 @@
+#speakit - un lecteur text to speech 
+
+#CE SCRIPT NECESSITE UNE CONNECTIVITE A INTERNET
+
 #installation
 
 ```
