@@ -1,4 +1,39 @@
 #!/usr/bin/env python3
+from optparse import OptionParser
+
+class argsManager:
+
+    parser = OptionParser()
+    filename = None
+    outfilename = None
+    text     = None
+
+    def __setup_opts__(self):
+        
+        self.parser.add_option("-f", "--file", dest="filename",
+                        help="choisir le fichier a lire", metavar="FILE")
+
+        self.parser.add_option("-o", "--outfile", dest="outfilename",
+                        help="enregistrer dans le fichier", metavar="FILE")
+
+        self.parser.add_option("-t", "--text", dest="filename",
+                        help="specifier le texte a lire")
+
+    def __set_opts__(self):
+        (options, args) = parser.parse_args()
+        self.filename = options[:filename]
+        self.outfilename = options[:outfilename]
+        self.text = options[:text]
+
+    def gotopt(self,optname):
+
+    def getopt(self,optname):
+
+    def __init__(self):
+        self.__setup_opts__()
+        self.__set_opts()
+
+
 
 class ttsManager:
     "text to speak manager"
@@ -52,7 +87,7 @@ class ftsManager:
 class SpeakIt:
 
     def __run__(self):
-        
+
 
     def __interact__(self):
 
