@@ -2,10 +2,22 @@
 
 class ttsManager:
     "text to speak manager"
-    def set_text(self,text):
-        self.text = text
+    lines = []
+    text  = None
+    def set_lines(self,lines):
+        self.lines = lines
+
+    def set_text(self,text=None):
+        self.text = text  if text else ''.join(self.lines)
         
-    def __init__(self,text):
+    def get_lines(self):
+        return self.lines
+        
+    def get_text(self):
+        return self.text
+
+    def __init__(self,lines):
+        self.set_lines(lines)
         self.set_text(text)
 
 class ftsManager:
@@ -14,10 +26,17 @@ class ftsManager:
     file     = None
     filename = None
     text     = None
+
+    def get_text(self):
+        return self.text.get_text() if self.text else ""
+
+    def get_lines(self):
+        return self.text.get_lines() if self.text else []
+
     def read_file(self):
         self.file = fopen(self.filename,'r')
         if self.is_valid():
-            self.text = ttsManager()
+            self.text = ttsManager(self.file.readlines)
 
     def is_valid(self):
         return self.file.readable()
