@@ -21,13 +21,17 @@ class argsManager:
 
     def __set_opts__(self):
         (options, args) = parser.parse_args()
-        self.filename = options[:filename]
-        self.outfilename = options[:outfilename]
-        self.text = options[:text]
+        for option in options:
+            self._set(option,options[option])
 
     def gotopt(self,optname):
+        return optname in self
 
-    def getopt(self,optname):
+    def _set(self,optname,optval):
+        self[optname] = optval
+
+    def get(self,optname):
+        return self[optname] if self.gotopt(optname) else None
 
     def __init__(self):
         self.__setup_opts__()
@@ -87,9 +91,18 @@ class ftsManager:
 class SpeakIt:
 
     def __run__(self):
-
+        "just run and exit"
 
     def __interact__(self):
+        "interact"
+
+    def check_args():
+        return self.args.get('filename') or self.args.get('text')
 
     def __init__(self):
+        self.args = argsManager()
+        if self.check_args():
+            self.__run__()
+        else:
+            self.__interact__()
 
